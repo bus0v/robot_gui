@@ -1,5 +1,6 @@
 #pragma once
 #include "ros/service_client.h"
+#include <string>
 #define CVUI_IMPLEMENTATION
 
 #include "nav_msgs/Odometry.h"
@@ -24,6 +25,7 @@ private:
   std_srvs::Trigger srv;
   float linear_velocity_step = 0.1;
   float angular_velocity_step = 0.1;
+  std::string distanceReceived;
   nav_msgs::Odometry data_odom;
   geometry_msgs::Twist data_speed;
   robot_info::info data_info;

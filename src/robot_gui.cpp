@@ -1,4 +1,5 @@
 #include "robot_gui/robot_gui.h"
+#include "ros/init.h"
 #include <std_srvs/Trigger.h>
 
 RobotGui::RobotGui() {
@@ -11,8 +12,6 @@ RobotGui::RobotGui() {
   cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 10);
   ros::service::waitForService("/get_distance");
   distanceClient = nh.serviceClient<std_srvs::Trigger>("/get_distance");
-  
-  
 }
 
 void RobotGui::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
@@ -46,7 +45,6 @@ void RobotGui::run() {
     // created the GUI with the teleoperation buttons.
     if (cvui::button(frame, incrementX * 2, incrementY, buttonSizeX,
                      buttonSizeY, "Forward")) {
-
       data_speed.linear.x = data_speed.linear.x + linear_velocity_step;
       cmd_vel_pub.publish(data_speed);
     }
@@ -102,18 +100,18 @@ void RobotGui::run() {
     // having created the GUI that shows the robot position.
     cvui::window(frame, incrementX, incrementY * 4, buttonSizeX, buttonSizeY,
                  "X Position: ");
-    cvui::printf(frame, incrementX, incrementY * 4 + 20, 0.4, 0xff0000, "%.02f m",
-                 data_odom.pose.pose.position.x);
+    cvui::printf(frame, incrementX, incrementY * 4 + 20, 0.8, 0xFFFFFF,
+                 "%.01fm", data_odom.pose.pose.position.x);
 
     cvui::window(frame, incrementX * 2, incrementY * 4, buttonSizeX,
                  buttonSizeY, "Y Position: ");
-    cvui::printf(frame, incrementX*2, incrementY * 4 +20, 0.4, 0xff0000, "%.02f m",
-                 data_odom.pose.pose.position.y);
+    cvui::printf(frame, incrementX * 2, incrementY * 4 + 20, 0.8, 0xFFFFFF,
+                 "%.01fm", data_odom.pose.pose.position.y);
 
     cvui::window(frame, incrementX * 3, incrementY * 4, buttonSizeX,
                  buttonSizeY, "Z Position");
-    cvui::printf(frame, incrementX*3, incrementY * 4 +20, 0.4, 0xff0000, "%.02f m",
-                data_odom.pose.pose.position.z);
+    cvui::printf(frame, incrementX * 3, incrementY * 4 + 20, 0.8, 0xFFFFFF,
+                 "%.01fm", data_odom.pose.pose.position.z);
 
     // Distance travelled service: Create a button that calls the /get_distance
     // service and displays the response message to the screen. Ensure that
@@ -123,18 +121,20 @@ void RobotGui::run() {
     // your work after having completed this part.
     if (cvui::button(frame, 10, incrementY * 2, buttonSizeX - 10, buttonSizeY,
                      "Get Distance")) {
-        distanceClient.call(srv);
-        ROS_INFO("%s", srv.response.message.c_str());
-        cvui::printf(frame, 10, incrementY * 2 +20, 0.4, 0xff0000, "%.02f m",
-                srv.response.message.c_str());
+      distanceClient.call(srv);
+      ROS_INFO("%s", srv.response.message.c_str());
+      distanceReceived = srv.response.message;
     }
     cvui::window(frame, 10, incrementY * 3, buttonSizeX * 0.9, buttonSizeY * 2,
                  "Distance Travelled");
+    cvui::printf(frame, 12, incrementY * 3 + 40, 0.8, 0xFFFFFF,"%s",distanceReceived.c_str());
+
     cvui::update();
 
     cvui::imshow(WINDOW_NAME, frame);
     if (cv::waitKey(20) == 27) {
       break;
     }
+    ros::spinOnce();
   }
 }
