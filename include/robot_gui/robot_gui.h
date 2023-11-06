@@ -1,4 +1,5 @@
 #pragma once
+#include "ros/service_client.h"
 #define CVUI_IMPLEMENTATION
 
 #include "ros/subscriber.h"
@@ -17,6 +18,7 @@ class RobotGui{
     ros::Subscriber odom_sub;
     ros::Subscriber info_sub;
     ros::Publisher cmd_vel_pub;
+    ros::ServiceClient distanceClient;
     float linear_velocity_step = 0.1;
     float angular_velocity_step = 0.1;
     nav_msgs::Odometry data_odom;
