@@ -1,4 +1,5 @@
 #include "robot_gui/robot_gui.h"
+#include <std_srvs/Trigger.h>
 
 RobotGui::RobotGui() {
   ros::NodeHandle nh;
@@ -9,7 +10,9 @@ RobotGui::RobotGui() {
                                             &RobotGui::robotInfoCallback, this);
   cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 10);
   ros::service::waitForService("/get_distance");
-  distanceClient = nh.serviceClient("/get_distance");
+  distanceClient = nh.serviceClient<std_srvs::Trigger>("/get_distance");
+  
+  
 }
 
 void RobotGui::odomCallback(const nav_msgs::Odometry::ConstPtr &msg) {
@@ -120,6 +123,10 @@ void RobotGui::run() {
     // your work after having completed this part.
     if (cvui::button(frame, 10, incrementY * 2, buttonSizeX - 10, buttonSizeY,
                      "Get Distance")) {
+        distanceClient.call(srv);
+        ROS_INFO("%s", srv.response.message.c_str());
+        cvui::printf(frame, 10, incrementY * 2 +20, 0.4, 0xff0000, "%.02f m",
+                srv.response.message.c_str());
     }
     cvui::window(frame, 10, incrementY * 3, buttonSizeX * 0.9, buttonSizeY * 2,
                  "Distance Travelled");
