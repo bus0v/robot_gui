@@ -46,7 +46,7 @@ cv::namedWindow(WINDOW_NAME);
     cvui::printf(frame, 20, 140, 0.4, 0xFFFFFF,data_info.hydraulic_oil_temperature.c_str());
     cvui::printf(frame, 20, 160, 0.4, 0xFFFFFF,data_info.hydraulic_oil_tank_fill_level.c_str());
     cvui::printf(frame, 20, 180, 0.4, 0xFFFFFF,data_info.hydraulic_oil_pressure.c_str());
-    ROS_INFO("pressure: %s", data_info.hydraulic_oil_pressure.c_str());
+    
     // Teleoperation Buttons: Include buttons for increasing and decreasing the
     // speed in the x-axis direction and the rotation on the z-axis. These
     // buttons must be fully functional, so please ensure that pressing the
@@ -133,7 +133,7 @@ cv::namedWindow(WINDOW_NAME);
       distanceReceived = srv.response.message;
     }
     cvui::window(frame, 10, incrementY * 3, buttonSizeX * 0.9, buttonSizeY * 2,
-                 "Distance Travelled");
+                 "Distance");
     cvui::printf(frame, 12, incrementY * 3 + 40, 0.8, 0xFFFFFF,"%s",distanceReceived.c_str());
 
     cvui::update();
