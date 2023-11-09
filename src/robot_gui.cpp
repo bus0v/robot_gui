@@ -23,6 +23,7 @@ void RobotGui::robotInfoCallback(const robot_info::info::ConstPtr &msg) {
 }
 
 void RobotGui::run() {
+cv::namedWindow(WINDOW_NAME);
   cvui::init(WINDOW_NAME);
   cv::Mat frame = cv::Mat(cv::Size(400, 500), CV_8UC3);
   while (ros::ok()) {
@@ -35,8 +36,17 @@ void RobotGui::run() {
     // the robot_info topic. If the published message changes, the GUI must
     // update accordingly. Commit your work after having created the GUI with
     // the general info area.
-    cvui::window(frame, 10, 15, buttonSizeX * 0.9, buttonSizeY * 2,
+    cvui::window(frame, 10, 15, buttonSizeX * 2, buttonSizeY * 1.9,
                  "General Info");
+    cvui::printf(frame, 20, 40, 0.4, 0xFFFFFF,data_info.robot_description.c_str());
+    cvui::printf(frame, 20, 60, 0.4, 0xFFFFFF,data_info.serial_number.c_str());
+    cvui::printf(frame, 20, 80, 0.4, 0xFFFFFF,data_info.ip_address.c_str());
+    cvui::printf(frame, 20, 100, 0.4, 0xFFFFFF,data_info.firmware_version.c_str());
+    cvui::printf(frame, 20, 120, 0.4, 0xFFFFFF,data_info.maximum_payload.c_str());
+    cvui::printf(frame, 20, 140, 0.4, 0xFFFFFF,data_info.hydraulic_oil_temperature.c_str());
+    cvui::printf(frame, 20, 160, 0.4, 0xFFFFFF,data_info.hydraulic_oil_tank_fill_level.c_str());
+    cvui::printf(frame, 20, 180, 0.4, 0xFFFFFF,data_info.hydraulic_oil_pressure.c_str());
+    ROS_INFO("pressure: %s", data_info.hydraulic_oil_pressure.c_str());
     // Teleoperation Buttons: Include buttons for increasing and decreasing the
     // speed in the x-axis direction and the rotation on the z-axis. These
     // buttons must be fully functional, so please ensure that pressing the
@@ -46,26 +56,22 @@ void RobotGui::run() {
     if (cvui::button(frame, incrementX * 2, incrementY, buttonSizeX,
                      buttonSizeY, "Forward")) {
       data_speed.linear.x = data_speed.linear.x + linear_velocity_step;
-      cmd_vel_pub.publish(data_speed);
     }
     if (cvui::button(frame, incrementX * 2, incrementY * 3, buttonSizeX,
                      buttonSizeY, "Backward")) {
       data_speed.linear.x = data_speed.linear.x - linear_velocity_step;
-      cmd_vel_pub.publish(data_speed);
     }
 
     if (cvui::button(frame, incrementX * 2, incrementY * 2, buttonSizeX,
                      buttonSizeY, "Stop")) {
       data_speed.linear.x = 0.0;
       data_speed.angular.z = 0.0;
-      cmd_vel_pub.publish(data_speed);
     }
 
     if (cvui::button(frame, incrementX, incrementY * 2, buttonSizeX,
                      buttonSizeY, " Left ")) {
       // The button was clicked, update the Twist message
       data_speed.angular.z = data_speed.angular.z + angular_velocity_step;
-      cmd_vel_pub.publish(data_speed);
     }
 
     // Show a button at position x = 195, y = 50
@@ -73,8 +79,8 @@ void RobotGui::run() {
                      buttonSizeY, " Right ")) {
       // The button was clicked, update the Twist message
       data_speed.angular.z = data_speed.angular.z - angular_velocity_step;
-      cmd_vel_pub.publish(data_speed);
     }
+    cmd_vel_pub.publish(data_speed);
     // Current velocities: Display the current speed send to the robot via the
     // cmd_vel topic as "Linear Velocity" and "Angular Velocity". These buttons
     // must be fully functional, so please ensure that pressing the buttons
@@ -82,18 +88,19 @@ void RobotGui::run() {
     // having created the GUI with the Current velocities.
 
     // Create window at (320, 20) with size 120x40 (width x height) and title
-    cvui::window(frame, incrementX, 20, buttonSizeX * 1.5, 70,
-                 "Linear velocity:");
+    cvui::window(frame, incrementX*2, 20, buttonSizeX, 70,
+                 "Linear speed:");
     // Show the current velocity inside the window
-    cvui::printf(frame, incrementX, 45, 0.4, 0xff0000, "%.02f m/sec",
+    cvui::printf(frame, incrementX*2, 45, 0.4, 0xff0000, "%.02f m/sec",
                  data_speed.linear.x);
 
     // Create window at (320 60) with size 120x40 (width x height) and title
-    cvui::window(frame, incrementX * 2.5, 20, buttonSizeX * 1.5, 70,
-                 "Angular velocity:");
+    cvui::window(frame, incrementX * 3, 20, buttonSizeX, 70,
+                 "Angular speed:");
     // Show the current velocity inside the window
     cvui::printf(frame, incrementX * 3, 45, 0.4, 0xff0000, "%.02f rad/sec",
                  data_speed.angular.z);
+
     // Robot position (Odometry based): Subscribe to /odom and display the
     // current x,y,z position to the GUI. The values displayed must be the
     // actual values being published to the /odom topic. Commit your work after
